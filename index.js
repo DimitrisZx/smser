@@ -39,8 +39,27 @@ class FormHelper {
 
   toggleSubmit(isEnabled) {
     this.submitButton.disabled = !isEnabled;
+    const getMobileOperatingSystem = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    
+      if (/android/i.test(userAgent)) {
+        return "Android";
+      }
+      
+      if (/iPhone/.test(userAgent) && !window.MSStream) {
+        return "iOS";
+      }
+    
+      return "unknown";
+    }
 
-    const smsLink = `sms:13033&body=${this.codeField.value} ${this.nameField.value} ${this.addressField.value}`;
+    let specialCharacter = '';
+    if (getMobileOperatingSystem() === 'Android') {
+      specialCharacter = '?';
+    } else if(getMobileOperatingSystem() === 'iOS') {
+      specialCharacter = '&'
+    }
+    const smsLink = `sms:13033${specialCharacter}body=${this.codeField.value} ${this.nameField.value} ${this.addressField.value}`;
     this.submitButton.setAttribute('href', smsLink)
   }
 
@@ -55,8 +74,3 @@ class FormHelper {
 }
 
 const smsClient = new SMSHelper();
-
-document
-  .querySelector('#submit')
-  .addEventListener('click', smsClient.sendSms);
-
